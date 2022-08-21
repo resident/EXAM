@@ -11,19 +11,23 @@ namespace EXAM.Commands
             return di.EnumerateDirectories().Sum(GetDirSize) +
                 di.EnumerateFiles().Sum(file => file.Length);
         }
-        
-        public override void Help()
+
+        public override void HelpShort()
         {
             Console.WriteLine("Print size file or directory");
+        }
+
+        public override void Help()
+        {
+            HelpShort();
             Console.WriteLine("Usage: size <path>");
         }
         
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
-            if (args.Length != 2)
-                throw new ArgumentException("Invalid arguments");
-
-            var path = args[1];
+            args.ThrowIfArgsLessThan(1);
+            
+            var path = args[0];
             
             if (Directory.Exists(path))
                 Console.WriteLine($"{GetDirSize(new DirectoryInfo(path))} bytes");

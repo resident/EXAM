@@ -5,18 +5,22 @@ namespace EXAM.Commands
 {
     public class MkdirCommand:Command
     {
-        public override void Help()
+        public override void HelpShort()
         {
             Console.WriteLine("Create new directory");
+        }
+
+        public override void Help()
+        {
+            HelpShort();
             Console.WriteLine("Usage: mkdir <directory name>");
         }
         
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
-            if (args.Length != 2)
-                throw new ArgumentException("Invalid arguments");
+            args.ThrowIfArgsLessThan(1);
 
-            Directory.CreateDirectory(args[1]);
+            Directory.CreateDirectory(args[0]);
         }
     }
 }

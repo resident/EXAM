@@ -8,10 +8,15 @@ namespace EXAM.Commands
 {
     public class FindCommand:Command
     {
-        public override void Help()
+        public override void HelpShort()
         {
             Console.WriteLine("Recursive find files and directories using regular expressions");
-            Console.WriteLine("Usage: find <directory path> <regex pattern>");
+        }
+
+        public override void Help()
+        {
+            HelpShort();
+            Console.WriteLine("Usage: find <path> <regex pattern>");
         }
 
         private static List<string> Find(DirectoryInfo di, Regex pattern)
@@ -31,19 +36,25 @@ namespace EXAM.Commands
             return result;
         }
         
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
-            if (args.Length != 3)
-                throw new ArgumentException("Invalid arguments");
+            args.ThrowIfArgsLessThan(2);
 
-            var directory = new DirectoryInfo(args[1]);
-            var pattern = new Regex(args[2]);
+            var path = args[0];
+            var pattern = new Regex(args[1]);
 
-            if (!directory.Exists)
-                throw new DirectoryNotFoundException();
+            if (File.Exists(path))
+            {
+                var file = new FileInfo(path);
                 
-            foreach (var path in Find(directory, pattern))
-                Console.WriteLine(path);
+                if (pattern.IsMatch(file.Name))
+                    Console.WriteLine(file.FullName);
+            }
+            else if (Directory.Exists(path))
+                foreach (var item in Find(new DirectoryInfo(path), pattern))
+                    Console.WriteLine(item);
+            else
+                throw new ArgumentException($"Path '{path}' not found");
                 
         }
     }

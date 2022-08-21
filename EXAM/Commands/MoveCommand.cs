@@ -5,19 +5,23 @@ namespace EXAM.Commands
 {
     public class MoveCommand:Command
     {
-        public override void Help()
+        public override void HelpShort()
         {
             Console.WriteLine("Move file or directory");
+        }
+
+        public override void Help()
+        {
+            HelpShort();
             Console.WriteLine("Usage: move <from path> <to path>");
         }
         
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
-            if (args.Length != 3)
-                throw new ArgumentException("Invalid arguments");
+            args.ThrowIfArgsLessThan(2);
             
-            var src = args[1];
-            var dst = args[2];
+            var src = args[0];
+            var dst = args[1];
             
             Directory.Move(src, dst);
         }

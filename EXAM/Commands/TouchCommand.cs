@@ -5,18 +5,22 @@ namespace EXAM.Commands
 {
     public class TouchCommand:Command
     {
-        public override void Help()
+        public override void HelpShort()
         {
             Console.WriteLine("Create new file");
+        }
+
+        public override void Help()
+        {
+            HelpShort();
             Console.WriteLine("Usage: touch <file path>");
         }
         
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
-            if (args.Length != 2)
-                throw new ArgumentException("Invalid arguments");
+            args.ThrowIfArgsLessThan(1);
             
-            var path = args[1];
+            var path = args[0];
 
             if (File.Exists(path) || Directory.Exists(path))
                 throw new ArgumentException("Path already exists");

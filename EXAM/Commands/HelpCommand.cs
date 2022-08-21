@@ -4,47 +4,39 @@ namespace EXAM.Commands
 {
     public class HelpCommand:Command
     {
-        public override void Help()
+        public override void HelpShort()
         {
             Console.WriteLine("Print commands list with description");
+        }
+
+        public override void Help()
+        {
+            HelpShort();
             Console.WriteLine("Usage: help [<command name>]");
         }
 
-        private static void Help(string name)
+        private static void Help(string commandName)
         {
-            CommandsProvider.GetCommand(name).Help();
+            if (CommandsProvider.HasCommand(commandName))
+                CommandsProvider.GetCommand(commandName).Help();
+            else
+                throw new ArgumentException($"Command '{commandName}' not found");
         }
         
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
-            switch (args.Length)
+            switch (args.Count)
             {
-                case 1:
-                    Console.WriteLine("help   - Print this help or help for command");
-                    Console.WriteLine("exit   - Exit from program");
-                    Console.WriteLine("cls    - Clear console");
-                    Console.WriteLine("touch  - Create empty file");
-                    Console.WriteLine("attrs  - Print file attributes");
-                    Console.WriteLine("cat    - Print file");
-                    Console.WriteLine("dir    - List files");
-                    Console.WriteLine("cd     - Change current directory");
-                    Console.WriteLine("move   - Move file or directory");
-                    Console.WriteLine("rename - Rename files or directories");
-                    Console.WriteLine("copy   - Copy files");
-                    Console.WriteLine("del    - Delete files");
-                    Console.WriteLine("mkdir  - Create directory");
-                    Console.WriteLine("find   - Recursive find files and directories using regular expressions");
-                    Console.WriteLine("size   - Print size file or directory");
+                case 0:
+                    foreach (var command in CommandsProvider.Commands)
+                    {
+                        Console.Write($"{command.Key, -10} - ");
+                        command.Value.HelpShort();
+                    }
                     
                     break;
-                case 2:
-                    var cmdName = args[1];
-                    
-                    if (CommandsProvider.HasCommand(cmdName))
-                        Help(cmdName);
-                    else
-                        throw new ArgumentException($"Command '{cmdName}' not found");
-                    
+                case 1:
+                    Help(args[0]);
                     break;
                 default:
                     throw new ArgumentException("Invalid command arguments");

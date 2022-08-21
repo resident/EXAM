@@ -1,42 +1,58 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EXAM.Commands;
 
 namespace EXAM
 {
     public static class CommandsProvider
     {
-        private static Dictionary<string, Command> _commands = new Dictionary<string, Command>();
+        public static Dictionary<string, Command> Commands { get; set; } = new Dictionary<string, Command>();
 
-        public static void SetCommands(Dictionary<string, Command> commands)
+        public static void InitCommands()
         {
-            _commands = commands;
+            var types = typeof(Command).Assembly.GetTypes().Where(t => t.BaseType == typeof(Command));
+
+            Commands.Clear();
+            
+            foreach (var type in types)
+            {
+                var info = type.GetConstructor(Type.EmptyTypes);
+
+                if (info == null) continue;
+                
+                var command = (Command) info.Invoke(null);
+
+                Commands.Add(type.Name.Replace("Command", "").ToLower(), command);
+            }
         }
-        
+
         public static void Add(string name, Command command)
         {
-            _commands.Add(name, command);
+            Commands.Add(name, command);
         }
         
         public static void Remove(string name)
         {
-            _commands.Remove(name);
+            Commands.Remove(name);
         }
 
         public static bool HasCommand(string name)
         {
-            return _commands.ContainsKey(name);
+            return Commands.ContainsKey(name);
         }
 
         public static Command GetCommand(string name)
         {
-            return HasCommand(name) ? _commands[name] : null;
+            return HasCommand(name) ? Commands[name] : null;
         }
 
-        public static void Run(string name, string[] args)
+        public static Dictionary<string, Command>.KeyCollection GetCommandNames() => Commands.Keys;
+
+        public static void Run(Arguments args)
         {
-            if (HasCommand(name))
-                GetCommand(name).Run(args);
+            if (HasCommand(args.CommandName))
+                GetCommand(args.CommandName).Run(args);
             else
                 throw new ArgumentException("Command not found");
         }

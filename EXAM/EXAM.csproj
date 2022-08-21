@@ -39,6 +39,8 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Arguments.cs" />
+        <Compile Include="Colorize.cs" />
         <Compile Include="CommandsHistory.cs" />
         <Compile Include="CommandsProvider.cs" />
         <Compile Include="Commands\AttrsCommand.cs" />

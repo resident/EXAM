@@ -5,36 +5,50 @@ namespace EXAM.Commands
 {
     public class HistoryCommand:Command
     {
-        public override void Help()
+        public override void HelpShort()
         {
             Console.WriteLine("Print last used commands");
+        }
+
+        public override void Help()
+        {
+            HelpShort();
+            Console.WriteLine("Default: 5 last commands");
             Console.WriteLine("Usages:");
             Console.WriteLine("\t history [<max commands>]");
             Console.WriteLine("\t history clear");
-            Console.WriteLine("\t history set-max <max-cmd-limit>");
+            Console.WriteLine("\t history get-buffer-size");
+            Console.WriteLine("\t history set-buffer-size <buffer size>");
         }
 
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
             var history = new List<string>();
             
-            switch (args.Length)
+            switch (args.Count)
             {
-                case 1:
+                case 0:
                     history = CommandsHistory.GetHistory();
                     break;
-                case 2:
-                    if (int.TryParse(args[1], out var max))
+                case 1:
+                    if (int.TryParse(args[0], out var max))
                         history = CommandsHistory.GetHistory(max);
-                    else if (args[1] == "clear")
-                        CommandsHistory.Clear();
-                    else
-                        throw new ArgumentException("Invalid command arguments");
+                    else switch (args[0])
+                    {
+                        case "clear":
+                            CommandsHistory.Clear();
+                            break;
+                        case "get-buffer-size":
+                            Console.WriteLine(CommandsHistory.GetMaxCmdHistory());
+                            break;
+                        default:
+                            throw new ArgumentException("Invalid command arguments");
+                    }
                     
                     break;
-                case 3:
-                    if (args[1] == "set-max")
-                        CommandsHistory.SetMaxCmdHistory(int.Parse(args[2]));
+                case 2:
+                    if (args[0] == "set-buffer-size")
+                        CommandsHistory.SetMaxCmdHistory(int.Parse(args[1]));
                     else
                         throw new ArgumentException("Invalid command arguments");
                     

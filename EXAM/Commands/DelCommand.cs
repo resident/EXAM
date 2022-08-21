@@ -5,18 +5,22 @@ namespace EXAM.Commands
 {
     public class DelCommand:Command
     {
-        public override void Help()
+        public override void HelpShort()
         {
             Console.WriteLine("Delete file or directory");
+        }
+
+        public override void Help()
+        {
+            HelpShort();
             Console.WriteLine("Usage: del <path>");
         }
         
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
-            if (args.Length != 2)
-                throw new ArgumentException("Invalid arguments");
+            args.ThrowIfArgsLessThan(1);
 
-            var path = args[1];
+            var path = args[0];
 
             if ( File.Exists(path) )
                 new FileInfo(path).Delete();

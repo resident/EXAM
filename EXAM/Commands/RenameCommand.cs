@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -8,10 +7,40 @@ namespace EXAM.Commands
 {
     public class RenameCommand:Command
     {
-        public override void Help()
+        public override void HelpShort()
         {
             Console.WriteLine("Rename files and directories by regex pattern");
-            Console.WriteLine("Usage: rename <directory path> <source files regex pattern> <replacement>");
+        }
+
+        public override void Help()
+        {
+            HelpShort();
+            Console.WriteLine("Command solves name conflicts by adding the suffix (n) to the file name");
+            Console.WriteLine("Usage: rename [<directory path>] <source files regex pattern> <replacement>");
+            Console.WriteLine();
+            Console.WriteLine("Substitutions in Regular Expressions");
+            Console.WriteLine("+-------------------------------------------------------------------------------+");
+            Console.WriteLine("| Substitution | Description                                                    |");
+            Console.WriteLine("+-------------------------------------------------------------------------------+");
+            Console.WriteLine("|              | Includes the last substring matched by the capturing group     |");
+            Console.WriteLine("| $ number     | that is identified by number, where number is a decimal value, |");
+            Console.WriteLine("|              | in the replacement string.                                     |");
+            Console.WriteLine("+-------------------------------------------------------------------------------+");
+            Console.WriteLine("| ${ name }    | Includes the last substring matched by the named group         |");
+            Console.WriteLine("|              | that is designated by (?<name> ) in the replacement string.    |");
+            Console.WriteLine("+-------------------------------------------------------------------------------+");
+            Console.WriteLine("| $&           | Includes a copy of the entire match in the replacement string. |");
+            Console.WriteLine("+-------------------------------------------------------------------------------+");
+            Console.WriteLine("| $`           | Includes all the text of the input string before the match     |");
+            Console.WriteLine("|              | in the replacement string.                                     |");
+            Console.WriteLine("+-------------------------------------------------------------------------------+");
+            Console.WriteLine("| $'           | Includes all the text of the input string after the match      |");
+            Console.WriteLine("|              | in the replacement string.                                     |");
+            Console.WriteLine("+-------------------------------------------------------------------------------+");
+            Console.WriteLine("| $+           | Includes the last group captured in the replacement string.    |");
+            Console.WriteLine("+-------------------------------------------------------------------------------+");
+            Console.WriteLine("| $_           | Includes the entire input string in the replacement string.    |");
+            Console.WriteLine("+-------------------------------------------------------------------------------+");
         }
 
         private static FileInfo ResolveConflict(FileSystemInfo file, DirectoryInfo directory)
@@ -30,18 +59,18 @@ namespace EXAM.Commands
             return new FileInfo(Path.Combine(directory.FullName, newFileName));
         }
 
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
-            if (args.Length != 4)
-                throw new ArgumentException("Invalid arguments");
+            args.ThrowIfArgsLessThan(2);
 
-            var directory = new DirectoryInfo(args[1]);
+            var path = args.Count == 3 ? args[0] : Directory.GetCurrentDirectory();
+            var directory = new DirectoryInfo(path);
 
             if (!directory.Exists)
                 throw new DirectoryNotFoundException();
             
-            var pattern = new Regex(args[2]);
-            var replacement   = args[3];
+            var pattern = new Regex(args[args.Count - 2]);
+            var replacement   = args[args.Count - 1];
 
             foreach (var file in directory.EnumerateFiles())
             {
@@ -53,7 +82,6 @@ namespace EXAM.Commands
                 if (newFile.Exists || Directory.Exists(newFile.FullName))
                     newFile = ResolveConflict(newFile, directory);
 
-                Console.WriteLine($"Old: {file.Name} New: {newFile.Name}");
                 file.MoveTo(newFile.FullName);
             }
         }

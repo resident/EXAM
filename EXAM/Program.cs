@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using EXAM.Commands;
 
 namespace EXAM
 {
@@ -11,48 +7,36 @@ namespace EXAM
     {
         public static void Main(string[] args)
         {
-            CommandsProvider.SetCommands(new Dictionary<string, Command>
+            CommandsProvider.InitCommands();
+
+            Console.CancelKeyPress += (sender, eventArgs) =>
             {
-                {"help", new HelpCommand()},
-                {"exit", new ExitCommand()},
-                {"history", new HistoryCommand()},
-                {"cls", new ClsCommand()},
-                {"touch", new TouchCommand()},
-                {"attrs", new AttrsCommand()},
-                {"cat", new CatCommand()},
-                {"dir", new DirCommand()},
-                {"cd", new CdCommand()},
-                {"move", new MoveCommand()},
-                {"rename", new RenameCommand()},
-                {"copy", new CopyCommand()},
-                {"del", new DelCommand()},
-                {"mkdir", new MkdirCommand()},
-                {"find", new FindCommand()},
-                {"size", new SizeCommand()},
-            });
+                Console.WriteLine();
+                Colorize.WrapCommandResult(()=>CommandsProvider.Run(new Arguments("exit")));
+            };
 
             while (true)
             {
                 var curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
                 
-                Console.Write($"{curDir}>");
-                var cmd = Console.ReadLine();
+                Colorize.Wrap(()=>Console.Write($"{curDir}"), ConsoleColor.DarkCyan);
+                Colorize.Wrap(()=>Console.Write(">"), ConsoleColor.DarkYellow);
 
-                if (string.IsNullOrEmpty(cmd))
-                    continue;
+                var cmd = string.Empty;
+                
+                Colorize.WrapCommand(() => {cmd = Console.ReadLine();});
+
+                if (string.IsNullOrWhiteSpace(cmd)) continue;
 
                 try
                 {
-                    var cmdArgs = new Regex(" +(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")
-                        .Split(cmd)
-                        .Select(s => s.Replace("\"", ""))
-                        .ToArray();
+                    var cmdArgs = new Arguments(cmd);
 
-                    CommandsProvider.Run(cmdArgs.First(), cmdArgs);
+                    Colorize.WrapCommandResult(() => CommandsProvider.Run(cmdArgs));
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    Colorize.WrapException(() => Console.WriteLine(e.Message));   
                 }
                 finally
                 {

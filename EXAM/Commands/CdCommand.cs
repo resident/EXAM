@@ -5,18 +5,22 @@ namespace EXAM.Commands
 {
     public class CdCommand:Command
     {
-        public override void Help()
+        public override void HelpShort()
         {
             Console.WriteLine("Change current directory");
+        }
+
+        public override void Help()
+        {
+            HelpShort();
             Console.WriteLine("Usage: cd <path>");
         }
         
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
-            if (args.Length != 2)
-                throw new ArgumentException("Invalid arguments");
+            args.ThrowIfArgsLessThan(1);
 
-            var path = args[1];
+            var path = args[0];
 
             if (Directory.Exists(path))
                 Directory.SetCurrentDirectory(path);

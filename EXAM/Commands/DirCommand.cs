@@ -5,23 +5,28 @@ namespace EXAM.Commands
 {
     public class DirCommand:Command
     {
-        public override void Help()
+        public override void HelpShort()
         {
             Console.WriteLine("List files");
+        }
+
+        public override void Help()
+        {
+            HelpShort();
             Console.WriteLine("Usage: dir [<path>]");
         }
         
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
             string path;
             
-            switch (args.Length)
+            switch (args.Count)
             {
-                case 1:
+                case 0:
                     path = Directory.GetCurrentDirectory();
                     break;
-                case 2:
-                    path = args[1];
+                case 1:
+                    path = args[0];
                     break;
                 default:
                     throw new ArgumentException("Invalid arguments");

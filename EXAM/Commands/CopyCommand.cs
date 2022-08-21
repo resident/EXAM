@@ -5,10 +5,14 @@ namespace EXAM.Commands
 {
     public class CopyCommand:Command
     {
+        public override void HelpShort()
+        {
+            Console.WriteLine("Copy file or directory");
+        }
+
         public override void Help()
         {
-            
-            Console.WriteLine("Copy file or directory");
+            HelpShort();
             Console.WriteLine("Usage: copy <source path> <destination path>");
         }
         
@@ -23,24 +27,17 @@ namespace EXAM.Commands
                 CopyDirectory(directory, Path.Combine(destination, Path.GetFileName(directory)));
         }
         
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
-            if (args.Length != 3)
-                throw new ArgumentException("Invalid arguments");
+            args.ThrowIfArgsLessThan(2);
 
-            var source      = args[1];
-            var destination = args[2];
+            var source      = args[0];
+            var destination = args[1];
             
             if (File.Exists(source))
-                if (!File.Exists(destination))
-                    File.Copy(source, destination);
-                else
-                    throw new ArgumentException("Destination file already exists");
+                File.Copy(source, destination);
             else if (Directory.Exists(source))
-                if (!Directory.Exists(destination))
-                    CopyDirectory(source, destination);
-                else
-                    throw new ArgumentException("Destination directory already exists");
+                CopyDirectory(source, destination);
             else
                 throw new ArgumentException("Source path not found");
         }

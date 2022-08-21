@@ -4,15 +4,29 @@ namespace EXAM.Commands
 {
     public class ExitCommand:Command
     {
-        public int ExitCode { get; set; } = 0;
+        public int ExitCode { get; }
+
+        public ExitCommand()
+        {
+        }
+
+        public ExitCommand(int exitCode)
+        {
+            ExitCode = exitCode;
+        }
+
+        public override void HelpShort()
+        {
+            Console.WriteLine("Exit from program");
+        }
 
         public override void Help()
         {
-            Console.WriteLine("Exit from program");
+            HelpShort();
             Console.WriteLine("Usage: exit");
         }
 
-        public override void Run(string[] args)
+        public override void Run(Arguments args)
         {
             Console.WriteLine("Good bay!");
             Environment.Exit(ExitCode);
